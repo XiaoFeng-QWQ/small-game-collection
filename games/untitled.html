@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反弹球游戏</title>
+    <style>
+        #game {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            border: 2px solid #000;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+
+        .paddle {
+            position: absolute;
+            width: 100px;
+            height: 20px;
+            background-color: green;
+            left: 250px;
+            /* Center the paddle */
+            bottom: 0;
+        }
+
+        .ball {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: grey;
+            left: 290px;
+            /* Center the ball */
+            top: 190px;
+            /* Start the ball in the middle */
+            border-radius: 10px;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .control {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            font-size: 30px;
+            color: white;
+            background-color: #333;
+            border-radius: 25px;
+            margin: 0 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game">
+        <div id="paddle" class="paddle"></div>
+        <div id="ball" class="ball"></div>
+    </div>
+    <div class="controls">
+        <div id="left" class="control">←</div>
+        <div id="right" class="control">→</div>
+    </div>
+    <script>
+        const paddle = document.getElementById('paddle');
+        const ball = document.getElementById('ball');
+        const leftControl = document.getElementById('left');
+        const rightControl = document.getElementById('right');
+
+        let ballSpeedX = 2;
+        let ballSpeedY = 2;
+        let paddleSpeed = 5;
+        let ballX = 290;
+        let ballY = 190;
+
+        function movePaddle(event) {
+            let newPaddleX = paddle.offsetLeft;
+            if (event.id === 'left' && newPaddleX > 0) {
+                newPaddleX -= paddleSpeed;
+            } else if (event.id === 'right' && newPaddleX < 600 - paddle.offsetWidth) {
+                newPaddleX += paddleSpeed;
+            }
+            paddle.style.left = newPaddleX + 'px';
+        }
+
+        function moveBall() {
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Left wall collision
+            if (ballX <= 0) {
+                ballSpeedX = -ballSpeedX;
+            }
+            // Right wall collision
+            if (ballX >= 600 - ball.offsetWidth) {
+                ballSpeedX = -ballSpeedX;
+            }
+            // Top wall collision
+            if (ballY <= 0) {
+                ballSpeedY = -ballSpeedY;
+            }
+            // Bottom wall collision
+            if (ballY >= 400 - ball.offsetHeight) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            // Paddle collision
+            if (ballX >= paddle.offsetLeft && ballX <= paddle.offsetLeft + paddle.offsetWidth && ballY >= paddle.offsetTop) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            ball.style.left = ballX + 'px';
+            ball.style.top = ballY + 'px';
+        }
+
+        leftControl.addEventListener('click', () => movePaddle(leftControl));
+        rightControl.addEventListener('click', () => movePaddle(rightControl));
+
+        function gameLoop() {
+            moveBall();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+
+</html>

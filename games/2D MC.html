@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>2D MC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: auto;
+            background-color: #fff;
+        }
+
+        #controls {
+            position: fixed;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: none;
+            /* Initially hide the controls */
+        }
+
+        #colorControls {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .button {
+            width: 100px;
+            height: 100px;
+            background-color: #555;
+            color: white;
+            font-size: 48px;
+            text-align: center;
+            line-height: 100px;
+            border-radius: 15px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #up,
+        #down,
+        #left,
+        #right {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #up {
+            transform: translate(-50%, -150%);
+        }
+
+        #down {
+            transform: translate(-50%, 50%);
+        }
+
+        #left {
+            transform: translate(-150%, -50%);
+        }
+
+        #right {
+            transform: translate(50%, -50%);
+        }
+
+        #place {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 36px;
+        }
+
+        #destroy {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 24px;
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff0000;
+            color: white;
+        }
+
+        #colorPicker {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .colorLabel {
+            position: absolute;
+            top: -30px;
+            /* Move the label above the color picker */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #333;
+            user-select: none;
+            white-space: nowrap;
+            /* Prevent text wrapping */
+            width: auto;
+            /* Allow the label to take up as much width as needed */
+        }
+
+        #startMenu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            flex-direction: column;
+        }
+
+        .startButton {
+            padding: 10px 20px;
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+
+        #instruction {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 18px;
+            color: #333;
+            z-index: 10;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="colorControls">
+        <div class="colorLabel">点击按钮切换颜色</div>
+        <input type="color" id="colorPicker" value="#FF0000">
+    </div>
+    <div id="controls">
+        <div class="button" id="up">↑</div>
+        <div class="button" id="down">↓</div>
+        <div class="button" id="left">←</div>
+        <div class="button" id="right">→</div>
+        <div class="button" id="place">▣</div>
+    </div>
+    <button id="destroy">破坏方块</button>
+    <div id="instruction">请点击要破坏的方块</div>
+    <div id="startMenu">
+        <button class="startButton" id="startGame">开始游戏</button>
+        <p>来自 - LZY⁧‭</p>
+    </div>
+    <script>
+        var canvas = document.getElementById('gameCanvas');
+        var ctx = canvas.getContext('2d');
+        var world;
+        var player = {
+            x: 50,
+            y: 50,
+            size: 50,
+            speed: 1
+        };
+        var blockColor = '#FF0000'; // Default block color
+        var destroyActive = false; // Flag to track if destroy mode is active
+
+        function generateWorld() {
+            world = [];
+            for (var x = 0; x < 16; x++) {
+                world[x] = [];
+                for (var y = 0; y < 12; y++) {
+                    world[x][y] = { color: null, exists: false };
+                }
+            }
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawWorld();
+            drawPlayer();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function drawWorld() {
+            for (var x = 0; x < world.length; x++) {
+                for (var y = 0; y < world[x].length; y++) {
+                    if (world[x][y].exists) {
+                        drawBlock(x * 50, y * 50, world[x][y].color);
+                    }
+                }
+            }
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = '#0000FF';
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+        }
+
+        function drawBlock(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, 50, 50);
+        }
+
+        function movePlayer(dx, dy) {
+            var newX = player.x + dx * player.size;
+            var newY = player.y + dy * player.size;
+            if (world[Math.floor(newX / 50)][Math.floor(newY / 50)].exists === false) {
+                player.x = newX;
+                player.y = newY;
+            }
+        }
+
+        function placeBlock() {
+            var blockX = Math.floor(player.x / 50);
+            var blockY = Math.floor(player.y / 50);
+            world[blockX][blockY] = { color: blockColor, exists: true };
+        }
+
+        function destroyBlock(x, y) {
+            var blockX = Math.floor(x / 50);
+            var blockY = Math.floor(y / 50);
+            if (world[blockX][blockY].exists) {
+                world[blockX][blockY] = { color: null, exists: false };
+            }
+        }
+
+        document.getElementById('up').addEventListener('click', function () { movePlayer(0, -1); });
+        document.getElementById('down').addEventListener('click', function () { movePlayer(0, 1); });
+        document.getElementById('left').addEventListener('click', function () { movePlayer(-1, 0); });
+        document.getElementById('right').addEventListener('click', function () { movePlayer(1, 0); });
+        document.getElementById('place').addEventListener('click', placeBlock);
+
+        document.getElementById('destroy').addEventListener('click', function () {
+            destroyActive = !destroyActive;
+            var instruction = document.getElementById('instruction');
+            if (destroyActive) {
+                instruction.style.display = 'block';
+            } else {
+                instruction.style.display = 'none';
+            }
+        });
+
+        canvas.addEventListener('click', function (evt) {
+            if (destroyActive) {
+                var rect = canvas.getBoundingClientRect();
+                var x = evt.clientX - rect.left;
+                var y = evt.clientY - rect.top;
+                destroyBlock(x, y);
+                destroyActive = false; // Deactivate after one use
+                var instruction = document.getElementById('instruction');
+                instruction.style.display = 'none';
+            }
+        });
+
+        document.getElementById('colorPicker').addEventListener('input', function () {
+            blockColor = this.value;
+        });
+
+        document.getElementById('startGame').addEventListener('click', function () {
+            startGame();
+        });
+
+        function startGame() {
+            document.getElementById('startMenu').style.display = 'none';
+            document.getElementById('controls').style.display = 'flex';
+            document.getElementById('gameCanvas').style.display = 'block';
+            generateWorld(); // Generate a blank world
+            gameLoop(); // Start the game loop
+        }
+        // Initially hide the controls and game canvas
+        document.getElementById('controls').style.display = 'none';
+        document.getElementById('gameCanvas').style.display = 'none';
+
+        // Start with blank terrain
+        generateWorld();
+    </script>
+</body>
+
+</html>

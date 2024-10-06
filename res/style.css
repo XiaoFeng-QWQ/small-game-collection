@@ -1,0 +1,38 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
+}
+
+.header {
+    position: fixed;
+    z-index: 10;
+    width: 100%;
+    top: 0;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e7e7e7;
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header img {
+    height: 35px;
+    margin-right: 20px;
+}
+
+.search-bar {
+    flex-grow: 1;
+    max-width: 600px;
+}
+
+#list {
+    padding-top: 100px;
+}
+
+.game-item {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
