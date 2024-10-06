@@ -2,7 +2,7 @@ let listContainer = $('#list');
 
 // 获取JSON文件内容并生成初始列表
 $.ajax({
-    url: '/list.json',
+    url: 'res/list.json',
     method: 'GET',
     dataType: 'json',
     success: function (data) {
