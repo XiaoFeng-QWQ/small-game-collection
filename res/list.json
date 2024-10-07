@@ -4,13 +4,20 @@
         "name": "2D 我的世界",
         "date": "2024年10月5日",
         "authr": "LZY",
-        "description": "描述"
+        "description": "抽象就完了"
     },
     {
         "path": "games/untitled.html",
         "name": "反弹球游戏",
         "date": "2024年10月5日",
         "authr": "MingZe",
-        "description": "描述"
+        "description": "……"
+    },
+    {
+        "path":"games/贪吃蛇.html",
+        "name": "贪吃蛇",
+        "date": "2024年10月6日",
+        "authr": "LZY",
+        "description": "经典贪吃蛇(自带外挂)"
     }
 ]

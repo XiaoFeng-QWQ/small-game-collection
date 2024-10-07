@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇小游戏</title>
+    <style>
+        body {
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+        }
+
+        #gameCanvas {
+            background-color: #fff;
+            border: 1px solid #000;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+        }
+
+        #controls button {
+            position: absolute;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #up {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #left {
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        #right {
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+        }
+
+        #down {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #cheatButton {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #cheatMenu {
+            position: absolute;
+            bottom: 50px;
+            right: 10px;
+            background-color: #fff;
+            border: 1px solid #000;
+            padding: 10px;
+            display: none;
+            width: 150px;
+        }
+
+        #message {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f00;
+            color: #fff;
+            padding: 10px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div id="controls">
+            <button id="up" onclick="moveSnake('UP')">上</button>
+            <button id="left" onclick="moveSnake('LEFT')">左</button>
+            <button id="right" onclick="moveSnake('RIGHT')">右</button>
+            <button id="down" onclick="moveSnake('DOWN')">下</button>
+        </div>
+        <button id="cheatButton" onclick="toggleCheatMenu()">作弊菜单</button>
+        <div id="cheatMenu">
+            <button onclick="increaseSpeed()">更快</button>
+            <button onclick="decreaseLength()">更短</button>
+            <button onclick="increaseLength()">更长</button>
+            <button onclick="addScore()">+10 分数</button>
+        </div>
+        <div id="message"></div>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const box = 20;
+        const canvasSize = 20;
+        let snake = [];
+        let food = {};
+        let score = 0;
+        let d = "RIGHT";
+        let gameInterval = null;
+
+        // 初始化贪吃蛇
+        function initSnake() {
+            snake = [];
+            for (let i = 0; i < 3; i++) {
+                snake.push({
+                    x: 9 * box,
+                    y: 10 * box + i * box
+                });
+            }
+        }
+
+        // 放置食物
+        function placeFood() {
+            let foodPlaced = false;
+            while (!foodPlaced) {
+                food = {
+                    x: Math.floor(Math.random() * (canvasSize - 1)) * box,
+                    y: Math.floor(Math.random() * (canvasSize - 1)) * box
+                };
+                if (!snake.some(segment => segment.x === food.x && segment.y === food.y)) {
+                    foodPlaced = true;
+                }
+            }
+        }
+
+        // 检查是否碰撞
+        function isCollision(head, array) {
+            for (let i = 0; i < array.length; i++) {
+                if (head.x === array[i].x && head.y === array[i].y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // 绘制一切
+        function draw() {
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, canvasSize * box, canvasSize * box);
+            snake.forEach((segment, index) => {
+                if (index === 0) {
+                    ctx.fillStyle = "#00FF00"; // 蛇头使用亮绿色
+                } else {
+                    ctx.fillStyle = "#4CAF50"; // 蛇身使用暗绿色
+                }
+                ctx.fillRect(segment.x, segment.y, box, box);
+            });
+            ctx.fillStyle = "red";
+            ctx.fillRect(food.x, food.y, box, box);
+        }
+
+        // 移动贪吃蛇
+        function move() {
+            const head = {
+                x: snake[0].x,
+                y: snake[0].y
+            };
+            switch (d) {
+                case 'UP': head.y -= box; break;
+                case 'DOWN': head.y += box; break;
+                case 'LEFT': head.x -= box; break;
+                case 'RIGHT': head.x += box; break;
+            }
+            // 检查贪吃蛇是否撞到自己或墙壁
+            if (head.x < 0 || head.y < 0 || head.x >= canvasSize * box || head.y >= canvasSize * box || isCollision(head, snake)) {
+                clearInterval(gameInterval);
+                alert(`游戏结束。你的分数：${score}`);
+                return;
+            }
+            // 检查贪吃蛇是否吃到食物
+            snake.unshift(head);
+            if (head.x === food.x && head.y === food.y) {
+                score += 1;
+                placeFood();
+            } else {
+                snake.pop();
+            }
+            draw();
+        }
+
+        // 开始游戏
+        function startGame() {
+            clearInterval(gameInterval); // 清除现有的时间间隔
+            initSnake();
+            placeFood();
+            draw();
+            gameInterval = setInterval(move, 200); // 调整速度
+        }
+
+        // 根据按钮点击移动贪吃蛇
+        function moveSnake(direction) {
+            if (direction === "UP" && d !== "DOWN") d = "UP";
+            if (direction === "DOWN" && d !== "UP") d = "DOWN";
+            if (direction === "LEFT" && d !== "RIGHT") d = "LEFT";
+            if (direction === "RIGHT" && d !== "LEFT") d = "RIGHT";
+        }
+
+        // 作弊函数
+        function toggleCheatMenu() {
+            var cheatMenu = document.getElementById('cheatMenu');
+            cheatMenu.style.display = cheatMenu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function increaseSpeed() {
+            clearInterval(gameInterval);
+            gameInterval = setInterval(move, 100); // 提升游戏速度
+        }
+
+        function decreaseLength() {
+            if (snake.length > 1) { // 确保贪吃蛇不会变得太短
+                snake.pop(); // 从贪吃蛇中移除一段
+                draw(); // 用新的长度重新绘制贪吃蛇
+            } else {
+                showMessage("长度为1，不能再短了！", 1000); // 显示消息1秒钟
+            }
+        }
+
+        function increaseLength() {
+            const tail = { x: snake[snake.length - 1].x, y: snake[snake.length - 1].y };
+            snake.push(tail); // 在贪吃蛇中添加一段
+            draw(); // 用新的长度重新绘制贪吃蛇
+        }
+
+        function addScore() {
+            score += 10; // 分数增加10
+            draw(); // 重新绘制分数
+        }
+
+        function showMessage(text, duration) {
+            const messageElement = document.getElementById('message');
+            messageElement.innerText = text;
+            messageElement.style.display = 'block';
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, duration);
+        }
+
+        startGame();
+    </script>
+</body>
+
+</html>
