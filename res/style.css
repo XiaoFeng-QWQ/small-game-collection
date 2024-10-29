@@ -1,38 +1,51 @@
-body {
+* {
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+
+body,
+html {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f8f8f8;
+    height: 100%;
+    background-color: #282c34;
 }
 
-.header {
+main {
+    padding-top: 80px;
+}
+
+.mdui-card {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#searchContainer {
+    bottom: 0px;
+    width: auto;
+    display: grid;
+    margin: 10px;
+    padding: 5px;
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(2.5px) !important;
     position: fixed;
-    z-index: 10;
-    width: 100%;
-    top: 0;
-    background-color: #ffffff;
-    border-bottom: 1px solid #e7e7e7;
-    padding: 20px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    z-index: 1;
 }
 
-.header img {
-    height: 35px;
-    margin-right: 20px;
+canvas {
+    position: fixed;
+    display: block;
 }
 
-.search-bar {
-    flex-grow: 1;
-    max-width: 600px;
-}
-
-#list {
-    padding-top: 100px;
-}
-
-.game-item {
-    transition: transform 0.3s ease, opacity 0.3s ease;
+#copy {
+    bottom: 0px;
+    width: auto;
+    right: 0;
+    display: grid;
+    margin: 10px;
+    padding: 5px;
+    position: fixed;
+    z-index: 1;
 }

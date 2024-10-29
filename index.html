@@ -4,28 +4,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小游戏集合</title>
-    <link rel="stylesheet" href="res/style.css">
-    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet">
+    <title>Small Game Collection | 网页小游戏集合</title>
 </head>
 
-<body>
+<body class="mdui-typo">
 
-    <!-- 搜索框 -->
-    <div class="header">
-        <a href="https://github.com/XiaoFeng-QWQ/small-game-collection" target="_blank" rel="noopener noreferrer">Github开源地址</a>
-        <div class="search-bar input-group">
-            <input type="text" id="search" class="form-control" placeholder="实时搜索……">
+    <!-- loading开始 -->
+    <style>
+        #loading-animation {
+            background-color: #2e2e2b;
+            ;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            z-index: 99999999999999999999999999999999999999999999999;
+            margin-top: 0px;
+            top: 0px;
+        }
+
+        #loading-animation-center {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        #loading-animation-center-absolute {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            height: 200px;
+            width: 200px;
+            margin-top: -100px;
+            margin-left: -100px;
+        }
+
+        .loading_object {
+            -moz-border-radius: 50% 50% 50% 50%;
+            -webkit-border-radius: 50% 50% 50% 50%;
+            border-radius: 50% 50% 50% 50%;
+            position: absolute;
+            border-left: 5px solid #87CEFA;
+            border-right: 5px solid #FFC0CB;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            -webkit-animation: animate 2.5s infinite;
+            animation: animate 2.5s infinite;
+        }
+
+        #loading_one {
+            left: 75px;
+            top: 75px;
+            width: 50px;
+            height: 50px;
+        }
+
+        #loading_two {
+            left: 65px;
+            top: 65px;
+            width: 70px;
+            height: 70px;
+            -webkit-animation-delay: 0.1s;
+            animation-delay: 0.1s;
+        }
+
+        #loading_three {
+            left: 55px;
+            top: 55px;
+            width: 90px;
+            height: 90px;
+            -webkit-animation-delay: 0.2s;
+            animation-delay: 0.2s;
+        }
+
+        #loading_four {
+            left: 45px;
+            top: 45px;
+            width: 110px;
+            height: 110px;
+            -webkit-animation-delay: 0.3s;
+            animation-delay: 0.3s;
+        }
+
+        @-webkit-keyframes animate {
+            50% {
+                -ms-transform: rotate(180deg);
+                -webkit-transform: rotate(180deg);
+                transform: rotate(180deg);
+            }
+
+            100% {
+                -ms-transform: rotate(0deg);
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+        }
+
+        @keyframes animate {
+            50% {
+                -ms-transform: rotate(180deg);
+                -webkit-transform: rotate(180deg);
+                transform: rotate(180deg);
+            }
+
+            100% {
+                -ms-transform: rotate(0deg);
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+        }
+    </style>
+    <div id="loading-animation">
+        <div id="loading-animation-center">
+            <div id="loading-animation-center-absolute">
+                <div class="loading_object" id="loading_four"></div>
+                <div class="loading_object" id="loading_three"></div>
+                <div class="loading_object" id="loading_two"></div>
+                <div class="loading_object" id="loading_one"></div>
+            </div>
+        </div>
+    </div>
+    <script>!function () { function e() { setTimeout(() => { $("#loading-animation").fadeOut(540) }, 500) } window.jQuery ? $(document).ready(() => { e() }) : document.onreadystatechange = (() => { "interactive" === document.readyState && e() }) }();</script>
+    <!-- loading 结束 -->
+
+    <link href="https://cdn.bootcdn.net/ajax/libs/mdui/1.0.2/css/mdui.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/res/style.css">
+    <canvas id="canvas"></canvas>
+
+    <!-- 顶部导航栏 -->
+    <div class="mdui-appbar mdui-appbar-fixed">
+        <nav class="mdui-toolbar">
+            <a>网页小游戏集合</a>
+            <div class="mdui-toolbar-spacer"></div>
+            <a href="https://github.com/XiaoFeng-QWQ/small-game-collection" target="_blank" class="mdui-btn">
+                Github开源地址 <i class="mdui-icon material-icons">link</i>
+            </a>
+            <button class="mdui-btn" mdui-dialog="{target: '#notifications'}">
+                公告 <i class="mdui-icon material-icons">notifications</i>
+            </button>
+        </nav>
+    </div>
+
+    <!-- 列表容器 -->
+    <main class="mdui-container">
+        <div id="list" class="mdui-row"></div>
+    </main>
+
+    <!-- 弹窗 -->
+    <div class="mdui-dialog" id="notifications">
+        <div class="mdui-dialog-title mdui-color-grey-800">站点公告</div>
+        <div class="mdui-dialog-content mdui-color-grey-900" id="notificationsBody"></div>
+        <div class="mdui-dialog-actions mdui-color-grey-800">
+            <button class="mdui-btn mdui-ripple" mdui-dialog-close>已阅[今日不在提示]</button>
         </div>
     </div>
 
-    <div class="container">
-        <div id="list" class="row"></div>
+    <!-- 搜索框 -->
+    <div class="mdui-container" id="searchContainer">
+        <div class="mdui-container mdui-textfield mdui-textfield-expandable">
+            <button class="mdui-textfield-icon mdui-btn mdui-btn-icon">
+                <i class="mdui-icon material-icons">search</i>
+            </button>
+            <input class="mdui-textfield-input" type="text" id="search" placeholder="实时搜索……">
+            <button class="mdui-textfield-close mdui-btn mdui-btn-icon">
+                <i class="mdui-icon material-icons">close</i>
+            </button>
+        </div>
     </div>
 
-    <script src="res/jquery.min.js"></script>
-    <script src="res/script.js"></script>
+    <div id="copy">
+        V1.0.0
+    </div>
+
+    <script src="/res/mdui.min.js"></script>
+    <script src="/res/jquery.min.js"></script>
+    <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/marked/4.0.2/marked.min.js"></script>
+    <script src="/res/backgroundScript.js"></script>
+    <script src="/res/script.js"></script>
 </body>
 
 </html>
