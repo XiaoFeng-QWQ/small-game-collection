@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>点我</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+  }
+  #gameArea {
+    position: relative;
+    width: 80%;
+    height: 80%;
+    background-color: #fff;
+    border: 2px solid #000;
+    overflow: hidden;
+  }
+  .clickable {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: red;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div id="gameArea">
+</div>
+<script>
+  const gameArea = document.getElementById('gameArea');
+  let score = 0;
+
+  function createClickable() {
+    const clickable = document.createElement('div');
+    clickable.classList.add('clickable');
+    clickable.innerText = '点我';
+    clickable.style.left = Math.random() * (gameArea.clientWidth - 50) + 'px';
+    clickable.style.top = Math.random() * (gameArea.clientHeight - 50) + 'px';
+
+    clickable.onclick = function() {
+      score++;
+      this.remove();
+      createClickable();
+      updateScore();
+    };
+
+    gameArea.appendChild(clickable);
+  }
+
+  function updateScore() {
+    document.title = `得分: ${score}`;
+  }
+
+  createClickable();
+</script>
+</body>
+</html>
