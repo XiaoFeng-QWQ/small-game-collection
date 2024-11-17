@@ -26,5 +26,12 @@
         "date": "2024年11月17日",
         "authr": "MingZe",
         "description": "一个简单,无聊,有病的休闲小游戏"
+    },
+    {
+        "path":"games/接住！.html",
+        "name": "接住",
+        "date": "2024年11月17日",
+        "authr": "MingZe",
+        "description": "接球游戏"
     }
 ]
